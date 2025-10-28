@@ -13,7 +13,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://e-blog-git-main-zainijaz231s-projects.vercel.app",
   "https://e-blog-kxhekysn0-zainijaz231s-projects.vercel.app",
-  "e-blog-theta.vercel.app"
+  "https://e-blog-theta.vercel.app"
 
 ];
 
