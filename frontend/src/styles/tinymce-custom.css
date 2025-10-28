@@ -1,0 +1,186 @@
+/* TinyMCE Custom Styles */
+.rich-text-editor {
+  margin-bottom: 1rem;
+}
+
+/* TinyMCE Container Styling */
+.tox-tinymce {
+  border-radius: 8px !important;
+  border: 1px solid #d1d5db !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.tox-tinymce:focus-within {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Toolbar Styling */
+.tox-toolbar {
+  background: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 8px !important;
+}
+
+.tox-toolbar__group {
+  border: none !important;
+}
+
+/* Button Styling */
+.tox-tbtn {
+  border-radius: 4px !important;
+  margin: 0 1px !important;
+}
+
+.tox-tbtn:hover {
+  background: #e5e7eb !important;
+}
+
+.tox-tbtn--enabled {
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+/* Editor Content Area */
+.tox-edit-area {
+  border-radius: 0 0 8px 8px !important;
+}
+
+.tox-edit-area__iframe {
+  border-radius: 0 0 8px 8px !important;
+}
+
+/* Status Bar */
+.tox-statusbar {
+  background: #f9fafb !important;
+  border-top: 1px solid #e5e7eb !important;
+  border-radius: 0 0 8px 8px !important;
+  padding: 4px 8px !important;
+}
+
+.tox-statusbar__text-container {
+  color: #6b7280 !important;
+  font-size: 12px !important;
+}
+
+/* Dropdown Menus */
+.tox-collection {
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.tox-collection__item {
+  border-radius: 4px !important;
+  margin: 2px !important;
+}
+
+.tox-collection__item:hover {
+  background: #f3f4f6 !important;
+}
+
+/* Dialog Styling */
+.tox-dialog {
+  border-radius: 12px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.tox-dialog__header {
+  background: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.tox-dialog__footer {
+  background: #f9fafb !important;
+  border-top: 1px solid #e5e7eb !important;
+  border-radius: 0 0 12px 12px !important;
+}
+
+/* Button Styling in Dialogs */
+.tox-button {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+.tox-button--primary {
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+}
+
+.tox-button--primary:hover {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+.tox-button--secondary {
+  background: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+  color: #374151 !important;
+}
+
+.tox-button--secondary:hover {
+  background: #e5e7eb !important;
+  border-color: #9ca3af !important;
+}
+
+/* Notification Styling */
+.tox-notification {
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.tox-notification--success {
+  background: #dcfce7 !important;
+  border-color: #16a34a !important;
+  color: #15803d !important;
+}
+
+.tox-notification--error {
+  background: #fef2f2 !important;
+  border-color: #dc2626 !important;
+  color: #dc2626 !important;
+}
+
+.tox-notification--warning {
+  background: #fefce8 !important;
+  border-color: #ca8a04 !important;
+  color: #a16207 !important;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .tox-toolbar {
+    flex-wrap: wrap !important;
+  }
+  
+  .tox-toolbar__group {
+    margin-bottom: 4px !important;
+  }
+  
+  .tox-tbtn {
+    margin: 1px !important;
+  }
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+  .tox-tinymce {
+    border-color: #374151 !important;
+  }
+  
+  .tox-toolbar {
+    background: #1f2937 !important;
+    border-bottom-color: #374151 !important;
+  }
+  
+  .tox-statusbar {
+    background: #1f2937 !important;
+    border-top-color: #374151 !important;
+  }
+  
+  .tox-statusbar__text-container {
+    color: #9ca3af !important;
+  }
+}
