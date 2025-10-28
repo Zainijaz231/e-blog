@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const verifyEmail = async (to, token) => {
-  const verificationLink = `http://localhost:5173/verify-email/${token}`;
+  const verificationLink = `https://e-blog-theta.vercel.app/verify-email/${token}`;
 
   const mailOptions = {
     from: process.env.Email_USER,
