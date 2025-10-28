@@ -9,16 +9,29 @@ import searchRouter from './routes/search.router.js';
 const app = express();
 app.use(express.json());
 app.use(cookierParser());
-app.use(cors({
-    origin: "http://localhost:5173", 
+const allowedOrigins = [
+  "http://localhost:5173",
   "https://e-blog-git-main-zainijaz231s-projects.vercel.app",
   "https://e-blog-kxhekysn0-zainijaz231s-projects.vercel.app",
-    credentials: true
-}));
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.error("❌ CORS blocked for origin:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 
 app.get('/', (req, res) => {
-    res.send('Hello from Express.js backend!');
+  res.send('Hello from Express.js backend!');
 });
 
 app.use('/api/auth', authRouter)
