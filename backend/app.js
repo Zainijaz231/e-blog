@@ -10,7 +10,9 @@ const app = express();
 app.use(express.json());
 app.use(cookierParser());
 app.use(cors({
-    origin: 'https://e-blog-fpsf.onrender.com',
+    origin: "http://localhost:5173", 
+  "https://e-blog-git-main-zainijaz231s-projects.vercel.app",
+  "https://e-blog-kxhekysn0-zainijaz231s-projects.vercel.app",
     credentials: true
 }));
 
