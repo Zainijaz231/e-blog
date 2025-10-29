@@ -44,8 +44,8 @@ const register = async (req, res) => {
     if (!emailResult.success) {
       console.error("Email sending failed:", emailResult.error);
       message = "Registration successful! There was an issue sending the verification email. Please try logging in to resend it.";
-    } else if (emailResult.testMode) {
-      message = "Registration successful! Email verification is in test mode - check console for preview link.";
+    } else if (emailResult.testMode || emailResult.service?.includes('Test')) {
+      message = "Registration successful! Email verification is in test mode - check server logs for verification link.";
     } else if (emailResult.service === 'Resend') {
       message = "Registration successful! Please check your email to verify your account.";
     }

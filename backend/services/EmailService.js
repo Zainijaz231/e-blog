@@ -1,5 +1,5 @@
 import { sendEmailWithResend, checkResendHealth } from './ResendEmailService.js';
-import { verifyEmailEthereal } from './EtherealEmail.js';
+import { sendSimpleTestEmail } from './SimpleTestEmail.js';
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -21,25 +21,25 @@ export const sendVerificationEmail = async (toEmail, token, name = "User") => {
     // Try Resend first
     const resendResult = await sendEmailWithResend(toEmail, token, name);
     
-    // If Resend fails due to domain/verification issues, fallback to test service
+    // If Resend fails due to domain/verification issues, fallback to simple test service
     if (!resendResult.success && resendResult.technicalError?.includes('domain')) {
-      console.log("⚠️  Resend domain restriction - falling back to test service");
+      console.log("⚠️  Resend domain restriction - falling back to simple test service");
       console.log("💡 For production: verify domain at resend.com/domains");
       
-      const fallbackResult = await verifyEmailEthereal(toEmail, token, name);
+      const fallbackResult = await sendSimpleTestEmail(toEmail, token, name);
       return {
         ...fallbackResult,
-        service: 'Ethereal-Fallback',
+        service: 'SimpleTest-Fallback',
         originalError: resendResult.technicalError,
-        note: 'Resend domain not verified - using test service'
+        note: 'Resend domain not verified - using simple test service'
       };
     }
     
     return resendResult;
   } else {
-    console.log("🧪 Resend not configured, using Ethereal test service");
+    console.log("🧪 Resend not configured, using simple test service");
     console.log("💡 Add RESEND_API_KEY for production email delivery");
-    return await verifyEmailEthereal(toEmail, token, name);
+    return await sendSimpleTestEmail(toEmail, token, name);
   }
 };
 
@@ -52,11 +52,11 @@ export const checkAvailableServices = async () => {
       priority: 1,
       note: 'Primary email service - reliable & fast'
     },
-    ethereal: {
+    simpletest: {
       configured: true, // Always available
       status: 'available',
       priority: 2,
-      note: 'Test service (emails not actually sent)'
+      note: 'Simple test service (no external connections needed)'
     }
   };
 

@@ -13,9 +13,9 @@ router.get('/email', async (req, res) => {
       status: 'ok',
       services: services,
       timestamp: new Date().toISOString(),
-      recommendation: services.gmail.configured 
-        ? "Gmail SMTP configured - production ready" 
-        : "Using test service - configure Gmail for production"
+      recommendation: services.resend.configured 
+        ? "Resend API configured - production ready" 
+        : "Using test service - configure Resend for production"
     });
   } catch (error) {
     res.status(500).json({
