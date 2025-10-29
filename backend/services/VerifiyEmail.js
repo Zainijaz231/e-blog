@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: process.env.Email_USER,
-    pass: process.env.Email_PASS,
+    pass: process.env.Email_PASS, // Use App Password if 2FA enabled
   },
   tls: {
     rejectUnauthorized: false,
@@ -45,15 +45,16 @@ const verifyEmail = async (to, token) => {
 
   // Try Resend first
   try {
-    await resend.emails.send({
-      from: "neoanimeverse@gmail.com",
+    const response = await resend.emails.send({
+      from: `Dreavix eBlog <${process.env.Email_USER}>`, // Corrected
       to,
       subject: "Verify Your Email Address",
       html: htmlContent,
     });
     console.log(`✅ Email sent via Resend to ${to}`);
+    console.log("Resend response:", response);
   } catch (resendError) {
-    console.warn("⚠️ Resend failed, using Gmail instead...", resendError.message);
+    console.warn("⚠️ Resend failed, using Gmail fallback...", resendError.message);
 
     try {
       const mailOptions = {
@@ -63,8 +64,9 @@ const verifyEmail = async (to, token) => {
         html: htmlContent,
       };
 
-      await transporter.sendMail(mailOptions);
+      const info = await transporter.sendMail(mailOptions);
       console.log(`✅ Verification email sent via Gmail to ${to}`);
+      console.log("Gmail response:", info);
     } catch (gmailError) {
       console.error("❌ Gmail fallback also failed:", gmailError.message);
       throw new Error("Could not send verification email via Resend or Gmail");
