@@ -16,8 +16,8 @@ export const verifyEmail = async (toEmail, token, name = "User") => {
       process.env.EMAILJS_SERVICE_ID,
       process.env.EMAILJS_TEMPLATE_ID,
       templateParams,
-      process.env.EMAILJS_USER_ID,  // Public key
-      process.env.EMAILJS_PRIVATE_KEY || undefined // optional
+      process.env.EMAILJS_USER_ID,
+      process.env.EMAILJS_PRIVATE_KEY // Server Secret Key, not public key
     );
     console.log(`✅ Verification email sent to ${toEmail}:`, response);
   } catch (err) {
