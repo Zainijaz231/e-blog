@@ -1,33 +1,18 @@
 import nodemailer from "nodemailer";
-import { Resend } from "resend";
 import dotenv from "dotenv";
 
-dotenv.config({ path: "./.env" });
+dotenv.config();
 
-// Debug logs
-console.log("Email_USER:", process.env.Email_USER);
-console.log("Email_PASS:", process.env.Email_PASS ? "Loaded ✅" : "Missing ❌");
-console.log("RESEND_API_KEY:", process.env.RESEND_API_KEY ? "Loaded ✅" : "Missing ❌");
-
-// ✅ Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// ✅ Gmail transporter (fallback)
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
   secure: true,
   auth: {
     user: process.env.Email_USER,
-    pass: process.env.Email_PASS, // Use App Password if 2FA enabled
+    pass: process.env.Email_PASS, // App Password
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
-  connectionTimeout: 20000,
 });
 
-// ✅ Email verification function
 const verifyEmail = async (to, token) => {
   const verificationLink = `https://e-blog-theta.vercel.app/verify-email/${token}`;
   const htmlContent = `
@@ -43,34 +28,17 @@ const verifyEmail = async (to, token) => {
     </div>
   `;
 
-  // Try Resend first
   try {
-    const response = await resend.emails.send({
-      from: `Dreavix eBlog <${process.env.Email_USER}>`, // Corrected
+    const info = await transporter.sendMail({
+      from: `"Dreavix eBlog" <${process.env.Email_USER}>`,
       to,
       subject: "Verify Your Email Address",
       html: htmlContent,
     });
-    console.log(`✅ Email sent via Resend to ${to}`);
-    console.log("Resend response:", response);
-  } catch (resendError) {
-    console.warn("⚠️ Resend failed, using Gmail fallback...", resendError.message);
-
-    try {
-      const mailOptions = {
-        from: `"Dreavix eBlog" <${process.env.Email_USER}>`,
-        to,
-        subject: "Verify Your Email Address",
-        html: htmlContent,
-      };
-
-      const info = await transporter.sendMail(mailOptions);
-      console.log(`✅ Verification email sent via Gmail to ${to}`);
-      console.log("Gmail response:", info);
-    } catch (gmailError) {
-      console.error("❌ Gmail fallback also failed:", gmailError.message);
-      throw new Error("Could not send verification email via Resend or Gmail");
-    }
+    console.log(`✅ Verification email sent to ${to}`);
+    console.log("Gmail response:", info);
+  } catch (error) {
+    console.error("❌ Failed to send email:", error);
   }
 };
 
