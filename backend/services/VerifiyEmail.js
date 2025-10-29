@@ -2,6 +2,9 @@ import { send } from "@emailjs/nodejs";
 import dotenv from "dotenv";
 dotenv.config();
 
+console.log(EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID, EMAILJS_PRIVATE_KEY );
+
+
 export const verifyEmail = async (toEmail, token, name = "User") => {
   const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${token}`;
 
