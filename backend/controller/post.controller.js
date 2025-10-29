@@ -296,20 +296,18 @@ const GetComments = async (req, res) => {
     try {
         const { postId } = req.params;
 
-        // Fetch all comments for this post
-        const comments = await Comment.find({ postId })
-            .populate("author", "username avatarUrl")
-            .sort({ createdAt: -1 });
+        const post = await Post.findById(postId)
+            .populate("comments.user", "username avatarUrl")
+            .select("comments");
 
-        if (!comments.length) {
-            return res.status(404).json({ message: "No comments yet" });
-        }
+        if (!post) return res.status(404).json({ message: "Post not found" });
 
-        res.status(200).json(comments);
+        res.status(200).json({ comments: post.comments });
     } catch (error) {
         console.error("Error fetching comments:", error);
-        res.status(500).json({ message: "Server error while fetching comments" });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
+
 
 export { CreatePost, GetAllPosts, GetComments, GetUserPosts, GetPostDetails, GetFollowingPosts, ToggleLike, addComment, deleteComment, deletePost, UpdatePost, trackPostView }
