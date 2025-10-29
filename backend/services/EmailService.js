@@ -1,19 +1,28 @@
 import { sendRenderOptimizedEmail, checkRenderEmailHealth } from './RenderOptimizedEmail.js';
+import { sendProductionEmail } from './ProductionGmail.js';
 import { verifyEmailEthereal } from './EtherealEmail.js';
 import dotenv from "dotenv";
 dotenv.config();
 
-// Smart email service - optimized for cloud deployment (Render, Vercel, etc.)
+// Smart email service - environment-aware selection
 export const sendVerificationEmail = async (toEmail, token, name = "User") => {
   console.log("🔍 Selecting email service...");
   console.log("🌐 Environment:", process.env.NODE_ENV || 'development');
   
-  // Priority 1: Render-optimized Gmail SMTP
   const hasGmailConfig = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isRender = process.env.RENDER || process.env.RENDER_SERVICE_ID;
   
   if (hasGmailConfig) {
-    console.log("🚀 Using Render-optimized Gmail service");
-    return await sendRenderOptimizedEmail(toEmail, token, name);
+    // In production, use simple reliable Gmail service
+    if (isProduction || isRender) {
+      console.log("🚀 Using Production Gmail service");
+      return await sendProductionEmail(toEmail, token, name);
+    } else {
+      // In development, skip Gmail and use test service directly
+      console.log("🧪 Development mode - using test service (Gmail may timeout locally)");
+      return await verifyEmailEthereal(toEmail, token, name);
+    }
   } else {
     console.log("🧪 Gmail not configured, using Ethereal test service");
     console.log("⚠️  Configure Gmail SMTP for production");

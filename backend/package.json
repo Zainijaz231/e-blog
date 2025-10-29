@@ -9,8 +9,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test:email": "node test-render.js",
-    "test:api": "node test-render-api.js",
+    "test:email": "node test-production.js",
+    "test:production": "node test-production.js",
     "check:email": "node fix-email.js"
   },
   "dependencies": {

@@ -39,15 +39,28 @@ const register = async (req, res) => {
 
     const emailResult = await sendVerificationEmail(email, token, name);
     
+    let message = "Registration successful! Please check your email to verify your account.";
+    
     if (!emailResult.success) {
       console.error("Email sending failed:", emailResult.error);
-      // Continue with registration even if email fails
+      
+      // Different messages based on service used
+      if (emailResult.service === 'Ethereal') {
+        message = "Registration successful! Email verification is in test mode - check console for preview link.";
+      } else {
+        message = "Registration successful! There was an issue sending the verification email. Please try logging in to resend it.";
+      }
+    } else if (emailResult.testMode) {
+      message = "Registration successful! Email verification is in test mode - check console for preview link.";
     }
 
     res.cookie('token', token, { httpOnly: true, secure:true, sameSite: 'none'  });
 
-
-    res.status(201).json({ message: "Registration successful! Please check your email to verify your account." });
+    res.status(201).json({ 
+      message: message,
+      emailSent: emailResult.success,
+      testMode: emailResult.testMode || false
+    });
 
   } catch (error) {
     console.error("Error registering user:", error);
