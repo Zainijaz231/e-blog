@@ -46,7 +46,7 @@ const verifyEmail = async (to, token) => {
   // Try Resend first
   try {
     await resend.emails.send({
-      from: "Dreavix eBlog <noreply@dreavix.com>",
+      from: "neoanimeverse@gmail.com",
       to,
       subject: "Verify Your Email Address",
       html: htmlContent,
