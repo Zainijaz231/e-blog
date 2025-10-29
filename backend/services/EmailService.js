@@ -16,11 +16,12 @@ export const sendVerificationEmail = async (toEmail, token, name = "User") => {
   if (hasGmailConfig) {
     // In production, use simple reliable Gmail service
     if (isProduction || isRender) {
-      console.log("🚀 Using Production Gmail service");
+      console.log("🚀 Using Production Gmail service (Production Environment)");
       return await sendProductionEmail(toEmail, token, name);
     } else {
-      // In development, skip Gmail and use test service directly
-      console.log("🧪 Development mode - using test service (Gmail may timeout locally)");
+      // In development, always use test service to avoid timeouts
+      console.log("🧪 Development mode - using Ethereal test service");
+      console.log("💡 Gmail will be used automatically in production (NODE_ENV=production)");
       return await verifyEmailEthereal(toEmail, token, name);
     }
   } else {
