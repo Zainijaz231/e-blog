@@ -10,7 +10,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test:email": "node test-production.js",
-    "test:render": "RENDER=true node test-production.js",
+
     "check:email": "node fix-email.js"
   },
   "dependencies": {

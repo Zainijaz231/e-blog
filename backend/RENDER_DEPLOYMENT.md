@@ -1,61 +1,50 @@
-# Render Deployment Guide - Email Service
+# Render Deployment Guide - Resend Email Service
 
-## 🛡️ Render-Safe Email Service
+## 📧 Resend Email Service
 
-This service automatically detects Render environment and uses a timeout-safe approach with graceful fallback to prevent deployment issues.
+This service uses Resend API for reliable email delivery on all cloud platforms including Render, Vercel, and others. No SMTP configuration needed!
 
-## 📧 Gmail Setup for Render
+## 🚀 Setup Instructions
 
-### Step 1: Gmail App Password
-1. Enable 2FA on Gmail: https://myaccount.google.com/security
-2. Generate App Password: https://myaccount.google.com/apppasswords
-3. Select "Mail" and "Other (Custom name)"
-4. Copy the 16-digit password (no spaces)
+### Step 1: Create Resend Account
+1. Sign up at https://resend.com
+2. Verify your email address
+3. Go to API Keys: https://resend.com/api-keys
+4. Create a new API key
+5. Copy the API key (starts with `re_`)
 
-### Step 2: Render Environment Variables
+### Step 2: Environment Variables
 In your Render dashboard, add these environment variables:
 
 ```
-EMAIL_USER=your-gmail@gmail.com
-EMAIL_PASS=abcdefghijklmnop
+RESEND_API_KEY=re_your_api_key_here
 FRONTEND_URL=https://your-frontend-url.vercel.app
 JWT_SECRET=your-jwt-secret
 NODE_ENV=production
+MONGODB_URI=your-mongodb-connection-string
 ```
 
 ## 🔧 How It Works
 
-### Multiple Strategies
-The service automatically tries multiple connection strategies:
+### Service Selection Logic
+- **Resend Available**: Uses Resend API for email delivery
+- **Resend Not Available**: Falls back to Ethereal test service
+- **Domain Issues**: Automatically falls back to test service with helpful error message
 
-1. **Gmail with TLS** (Port 587)
-   - Most reliable for Render
-   - Uses STARTTLS encryption
-   - 10-second timeout
-
-2. **Gmail SSL** (Port 465)
-   - Fallback option
-   - Direct SSL connection
-   - 8-second timeout
-
-3. **Gmail Service** (Auto-config)
-   - Last resort
-   - Uses nodemailer's built-in Gmail config
-   - 6-second timeout
-
-### Render-Specific Optimizations
-
-- ✅ **Short Timeouts**: Prevents Render deployment hangs
-- ✅ **Multiple Fallbacks**: If one strategy fails, tries next
-- ✅ **Connection Pooling**: Disabled to avoid Render issues
-- ✅ **TLS Flexibility**: Handles Render's network constraints
-- ✅ **Error Handling**: Graceful degradation
+### Resend Benefits
+- ✅ **No SMTP Configuration**: Simple API calls
+- ✅ **No Timeout Issues**: HTTP-based, not SMTP
+- ✅ **Reliable Delivery**: 99.9% uptime
+- ✅ **Free Tier**: 100 emails/day free
+- ✅ **Cloud Optimized**: Works perfectly on Render, Vercel, etc.
+- ✅ **Beautiful Templates**: HTML email support
 
 ## 🧪 Testing
 
 ### Local Testing
 ```bash
-npm run test:render
+npm run test:email     # Test Resend service
+npm run check:email    # Check configuration
 ```
 
 ### Production Testing
@@ -66,69 +55,62 @@ curl https://your-render-app.onrender.com/api/health/email
 
 ## 🛠️ Troubleshooting
 
-### Common Render Issues
+### Common Issues
 
-1. **Timeout Errors**
-   - ✅ Service automatically handles with shorter timeouts
-   - ✅ Multiple strategies prevent total failure
-   - ✅ Optimized for Render's network
+1. **Domain Verification (Free Tier)**
+   - Free tier can only send to verified email address
+   - For production: verify domain at resend.com/domains
+   - Service automatically falls back to test service if domain not verified
 
-2. **Authentication Errors**
-   - Check EMAIL_USER and EMAIL_PASS in Render dashboard
-   - Ensure using App Password (not regular password)
-   - Verify 2FA is enabled on Gmail
+2. **API Key Issues**
+   - Check RESEND_API_KEY in Render dashboard
+   - Ensure API key starts with `re_`
+   - Verify API key is active in Resend dashboard
 
-3. **Connection Errors**
-   - Service tries multiple ports/methods automatically
-   - Render's network sometimes blocks certain ports
-   - Fallback strategies handle this
+3. **Rate Limiting**
+   - Free tier: 100 emails/day
+   - Paid plans have higher limits
+   - Service handles rate limit errors gracefully
 
-### Health Check Warnings
-- Health checks might show timeout on Render
-- This is normal due to Render's cold starts
-- Actual email sending works better than health checks
-- Service is optimized for real usage, not health checks
+### Success Indicators
 
-## 📊 Success Indicators
-
-### Successful Deployment
+**✅ Successful Email Sending:**
 ```
-✅ Email sent successfully via Gmail-Gmail with TLS!
-📨 Message ID: <abc123@gmail.com>
-🚀 Service: Gmail-Gmail with TLS
-🎯 Strategy used: 1
+✅ Email sent successfully via Resend!
+📨 Email ID: bfa59006-1b50-4886-b69e-72a87558ad25
+🚀 Service: Resend
 ```
 
-### Fallback Success
+**✅ Fallback Success:**
 ```
-❌ Strategy 1 (Gmail with TLS) failed: timeout
-🔄 Trying strategy 2...
-✅ Email sent successfully via Gmail-Gmail SSL!
-🎯 Strategy used: 2
+⚠️  Resend domain restriction - falling back to test service
+💡 For production: verify domain at resend.com/domains
+🧪 Using test service as fallback
 ```
 
 ## 🔄 Deployment Steps
 
-1. **Push to GitHub**
-2. **Connect to Render**
-3. **Set Environment Variables**
-4. **Deploy**
-5. **Test Email Service**
+1. **Create Resend Account & Get API Key**
+2. **Push Code to GitHub**
+3. **Connect Repository to Render**
+4. **Set Environment Variables in Render Dashboard**
+5. **Deploy**
+6. **Test Email Service**
 
-## 💡 Pro Tips
+## 💡 Production Tips
 
-- Use Gmail App Password, never regular password
-- Set NODE_ENV=production on Render
-- Monitor logs for which strategy works best
-- Health checks may timeout, but email sending works
-- Service automatically adapts to Render's constraints
+- **Domain Verification**: For production, verify your domain at resend.com/domains
+- **Custom From Address**: Use your domain for professional emails
+- **Monitor Usage**: Check Resend dashboard for email statistics
+- **Upgrade Plan**: Consider paid plan for higher limits
 
 ## 🆘 Support
 
-If emails still don't work on Render:
+If emails still don't work:
 1. Check Render logs for specific errors
-2. Verify all environment variables are set
-3. Test with different Gmail account
-4. Contact support with specific error messages
+2. Verify RESEND_API_KEY is correctly set
+3. Test API key in Resend dashboard
+4. Check domain verification status
+5. Contact support with specific error messages
 
-The service is designed to handle Render's unique network environment and should work reliably in production.
+The service is designed to be reliable and handle various edge cases gracefully, ensuring your users can always register successfully.

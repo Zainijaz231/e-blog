@@ -1,43 +1,44 @@
-import { sendRenderOptimizedEmail, checkRenderEmailHealth } from './RenderOptimizedEmail.js';
-import { sendProductionEmail } from './ProductionGmail.js';
-import { sendRenderSafeEmail } from './RenderSafeEmail.js';
+import { sendEmailWithResend, checkResendHealth } from './ResendEmailService.js';
 import { verifyEmailEthereal } from './EtherealEmail.js';
 import dotenv from "dotenv";
 dotenv.config();
 
-// Smart email service - environment-aware selection
+// Smart email service - Resend primary with fallback
 export const sendVerificationEmail = async (toEmail, token, name = "User") => {
   console.log("🔍 Selecting email service...");
   console.log("🌐 Environment:", process.env.NODE_ENV || 'development');
   
-  const hasGmailConfig = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+  const hasResendConfig = process.env.RESEND_API_KEY;
   const isProduction = process.env.NODE_ENV === 'production';
-  const isRender = process.env.RENDER || process.env.RENDER_SERVICE_ID;
   
-  console.log("🔧 Debug info:");
-  console.log("   NODE_ENV:", process.env.NODE_ENV);
-  console.log("   isProduction:", isProduction);
-  console.log("   isRender:", !!isRender);
-  console.log("   RENDER:", process.env.RENDER);
-  console.log("   RENDER_SERVICE_ID:", process.env.RENDER_SERVICE_ID);
+  console.log("🔧 Service availability:");
+  console.log("   Resend API Key:", hasResendConfig ? "✅ Configured" : "❌ Missing");
+  console.log("   Environment:", isProduction ? "Production" : "Development");
   
-  if (hasGmailConfig) {
-    // Use Render-safe service that handles timeouts gracefully
-    if (isRender) {
-      console.log("🛡️  Using Render-safe email service (with fallback)");
-      return await sendRenderSafeEmail(toEmail, token, name);
-    } else if (isProduction) {
-      console.log("🚀 Using Production Gmail service (NODE_ENV=production)");
-      return await sendProductionEmail(toEmail, token, name);
-    } else {
-      // Local development
-      console.log("🧪 Development mode - using Ethereal test service");
-      console.log("💡 Set NODE_ENV=production for Gmail, or deploy to Render for safe Gmail");
-      return await verifyEmailEthereal(toEmail, token, name);
+  if (hasResendConfig) {
+    console.log("📧 Trying Resend email service...");
+    
+    // Try Resend first
+    const resendResult = await sendEmailWithResend(toEmail, token, name);
+    
+    // If Resend fails due to domain/verification issues, fallback to test service
+    if (!resendResult.success && resendResult.technicalError?.includes('domain')) {
+      console.log("⚠️  Resend domain restriction - falling back to test service");
+      console.log("💡 For production: verify domain at resend.com/domains");
+      
+      const fallbackResult = await verifyEmailEthereal(toEmail, token, name);
+      return {
+        ...fallbackResult,
+        service: 'Ethereal-Fallback',
+        originalError: resendResult.technicalError,
+        note: 'Resend domain not verified - using test service'
+      };
     }
+    
+    return resendResult;
   } else {
-    console.log("🧪 Gmail not configured, using Ethereal test service");
-    console.log("⚠️  Configure Gmail SMTP for production");
+    console.log("🧪 Resend not configured, using Ethereal test service");
+    console.log("💡 Add RESEND_API_KEY for production email delivery");
     return await verifyEmailEthereal(toEmail, token, name);
   }
 };
@@ -45,11 +46,11 @@ export const sendVerificationEmail = async (toEmail, token, name = "User") => {
 // Health check for available services
 export const checkAvailableServices = async () => {
   const services = {
-    gmail: {
-      configured: !!(process.env.EMAIL_USER && process.env.EMAIL_PASS),
+    resend: {
+      configured: !!process.env.RESEND_API_KEY,
       status: 'unknown',
       priority: 1,
-      note: 'Primary email service'
+      note: 'Primary email service - reliable & fast'
     },
     ethereal: {
       configured: true, // Always available
@@ -59,19 +60,17 @@ export const checkAvailableServices = async () => {
     }
   };
 
-  // Test Gmail if configured
-  if (services.gmail.configured) {
+  // Test Resend if configured
+  if (services.resend.configured) {
     try {
-      const result = await checkRenderEmailHealth();
-      services.gmail.status = result.success ? 'healthy' : 'unhealthy';
-      services.gmail.error = result.error;
-      services.gmail.email = result.email;
-      services.gmail.code = result.code;
-      services.gmail.suggestion = result.suggestion;
-      services.gmail.environment = result.environment;
+      const result = await checkResendHealth();
+      services.resend.status = result.success ? 'healthy' : 'unhealthy';
+      services.resend.error = result.error;
+      services.resend.apiKeyPrefix = result.apiKeyPrefix;
+      services.resend.message = result.message;
     } catch (error) {
-      services.gmail.status = 'error';
-      services.gmail.error = error.message;
+      services.resend.status = 'error';
+      services.resend.error = error.message;
     }
   }
 

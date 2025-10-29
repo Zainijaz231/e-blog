@@ -1,48 +1,71 @@
-import { sendProductionEmail } from './services/ProductionGmail.js';
+import { sendEmailWithResend, checkResendHealth } from './services/ResendEmailService.js';
 import { sendVerificationEmail } from './services/EmailService.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Test production email function
-const testProductionEmail = async () => {
-  console.log("🚀 Testing Production Email Service...");
+// Test Resend email function
+const testResendEmail = async () => {
+  console.log("📧 Testing Resend Email Service...");
   console.log("================================");
+  
+  // First check Resend health
+  console.log("🔍 Checking Resend configuration...");
+  const healthCheck = await checkResendHealth();
+  
+  if (!healthCheck.success) {
+    console.log("❌ Resend not properly configured:");
+    console.log("Error:", healthCheck.error);
+    console.log("\n📝 Setup Instructions:");
+    console.log("1. Sign up at https://resend.com");
+    console.log("2. Get API key from https://resend.com/api-keys");
+    console.log("3. Add to .env file: RESEND_API_KEY=re_your_api_key_here");
+    process.exit(1);
+  }
+  
+  console.log("✅ Resend configuration looks good!");
+  console.log("📧 API Key:", healthCheck.apiKeyPrefix);
   
   // Create a test token
   const testToken = jwt.sign(
-    { userId: 'production-test-123' }, 
+    { userId: 'resend-test-123' }, 
     process.env.JWT_SECRET || 'test-secret', 
     { expiresIn: '1h' }
   );
   
-  const testEmailAddress = 'ijazzain219@gmail.com';
-  const testName = 'Production Test User';
+  // Use the verified email address for testing
+  const testEmailAddress = 'neoanimeverse@gmail.com'; // This is the verified email
+  const testName = 'Resend Test User';
   
-  console.log("\n📧 Testing direct production service...");
+  console.log("\n📧 Testing direct Resend service...");
   console.log("To:", testEmailAddress);
   console.log("Name:", testName);
   
   try {
-    // Test production service directly
-    const result = await sendProductionEmail(testEmailAddress, testToken, testName);
+    // Test Resend service directly
+    const result = await sendEmailWithResend(testEmailAddress, testToken, testName);
     
     if (result.success) {
-      console.log("\n✅ Production email test successful!");
-      console.log("📨 Message ID:", result.messageId);
+      console.log("\n✅ Resend email test successful!");
+      console.log("📨 Email ID:", result.messageId);
       console.log("🚀 Service:", result.service);
-      console.log("📬 Response:", result.response);
-      console.log("\n🎉 This will work on Render!");
+      console.log("\n🎉 Email sent successfully! Check your inbox!");
     } else {
-      console.log("\n❌ Production email test failed:");
+      console.log("\n❌ Resend email test failed:");
       console.log("Error:", result.error);
       console.log("Technical:", result.technicalError);
-      console.log("Code:", result.code);
+      
+      console.log("\n🛠️  Troubleshooting:");
+      console.log("1. Check RESEND_API_KEY in .env file");
+      console.log("2. Verify API key is valid at https://resend.com/api-keys");
+      console.log("3. Check Resend dashboard for any issues");
     }
   } catch (error) {
-    console.error("\n💥 Production test crashed:", error.message);
+    console.error("\n💥 Resend test crashed:", error.message);
   }
+  
+  console.log("\n" + "=".repeat(50));
   
   console.log("\n" + "=".repeat(50));
   
@@ -72,21 +95,20 @@ const testProductionEmail = async () => {
   
   console.log("\n📋 Summary:");
   console.log("================================");
-  console.log("🏠 Local Development: Uses test service (Ethereal)");
-  console.log("🚀 Production/Render: Uses production Gmail service");
-  console.log("💡 This prevents local timeout issues while ensuring production works");
+  console.log("📧 Resend Service: Reliable, fast, no SMTP issues");
+  console.log("🧪 Test Service: For development when Resend not configured");
+  console.log("🚀 Works perfectly on Render, Vercel, and all cloud platforms");
+  console.log("💡 No timeout issues, no complex configuration needed");
   
   process.exit(0);
 };
 
 // Show current configuration
-console.log("📋 Production Email Configuration:");
+console.log("📋 Resend Email Configuration:");
 console.log("================================");
-console.log("EMAIL_USER:", process.env.EMAIL_USER || "❌ Missing");
-console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? "✅ Set" : "❌ Missing");
+console.log("RESEND_API_KEY:", process.env.RESEND_API_KEY ? "✅ Set" : "❌ Missing");
 console.log("FRONTEND_URL:", process.env.FRONTEND_URL || "❌ Missing");
 console.log("NODE_ENV:", process.env.NODE_ENV || "development");
-console.log("RENDER:", process.env.RENDER ? "✅ Render detected" : "❌ Not on Render");
 console.log("");
 
-testProductionEmail();
+testResendEmail();

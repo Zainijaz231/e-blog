@@ -1,19 +1,21 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from "dotenv";
 dotenv.config();
 
-// Simple Gmail service specifically for production deployment
-export const sendProductionEmail = async (toEmail, token, name = "User") => {
-  console.log("📧 Starting production Gmail service...");
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export const sendEmailWithResend = async (toEmail, token, name = "User") => {
+  console.log("📧 Starting Resend email service...");
   console.log("📧 To:", toEmail);
   console.log("👤 Name:", name);
-  console.log("🌐 Environment: PRODUCTION");
+  console.log("🌐 Environment:", process.env.NODE_ENV || 'development');
 
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.error("❌ Gmail credentials missing");
+  // Validate Resend API key
+  if (!process.env.RESEND_API_KEY) {
+    console.error("❌ RESEND_API_KEY not found");
     return { 
       success: false, 
-      error: "Gmail service not configured" 
+      error: "Resend service not configured. Please add RESEND_API_KEY to environment variables." 
     };
   }
 
@@ -21,28 +23,12 @@ export const sendProductionEmail = async (toEmail, token, name = "User") => {
   console.log("🔗 Verification Link:", verificationLink);
 
   try {
-    // Simple, reliable Gmail configuration for production
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      // Production-optimized settings
-      pool: false, // Disable pooling for serverless
-      maxConnections: 1,
-      rateDelta: 1000,
-      rateLimit: 1,
-    });
+    console.log("📤 Sending email via Resend...");
 
-    console.log("🔌 Verifying Gmail connection...");
-    await transporter.verify();
-    console.log("✅ Gmail connection verified");
-
-    const mailOptions = {
-      from: `"E-Blog Team" <${process.env.EMAIL_USER}>`,
-      to: toEmail,
-      subject: "Verify Your Email - E-Blog",
+    const { data, error } = await resend.emails.send({
+      from: 'E-Blog <onboarding@resend.dev>', // Default Resend domain
+      to: [toEmail],
+      subject: 'Verify Your Email - E-Blog',
       html: `
         <!DOCTYPE html>
         <html>
@@ -97,6 +83,9 @@ export const sendProductionEmail = async (toEmail, token, name = "User") => {
             <!-- Footer -->
             <div style="background: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #eee;">
               <p style="margin: 0; font-size: 12px; color: #666;">
+                This email was sent by E-Blog. Please do not reply to this email.
+              </p>
+              <p style="margin: 5px 0 0 0; font-size: 12px; color: #666;">
                 &copy; ${new Date().getFullYear()} E-Blog. All rights reserved.
               </p>
             </div>
@@ -108,58 +97,103 @@ export const sendProductionEmail = async (toEmail, token, name = "User") => {
       text: `
         Hello ${name}!
         
-        Welcome to E-Blog! Please verify your email address:
+        Welcome to E-Blog! Thank you for registering.
+        
+        Please verify your email address by clicking this link:
         ${verificationLink}
         
-        This link expires in 1 hour.
+        This link will expire in 1 hour for security reasons.
         
         If you didn't create this account, please ignore this email.
         
         Best regards,
         E-Blog Team
       `
-    };
+    });
 
-    console.log("📤 Sending email via Gmail...");
-    const info = await transporter.sendMail(mailOptions);
+    if (error) {
+      console.error("❌ Resend API error:", error);
+      
+      let userError = "Failed to send verification email. Please try again.";
+      
+      if (error.message?.includes('API key')) {
+        userError = "Email service configuration error. Please contact support.";
+      } else if (error.message?.includes('rate limit')) {
+        userError = "Too many emails sent. Please try again in a few minutes.";
+      } else if (error.message?.includes('domain')) {
+        userError = "Email service domain error. Please contact support.";
+      }
+      
+      return { 
+        success: false, 
+        error: userError,
+        technicalError: error.message,
+        service: 'Resend'
+      };
+    }
 
-    console.log("✅ Email sent successfully via Gmail!");
-    console.log("📨 Message ID:", info.messageId);
-
-    // Close transporter
-    transporter.close();
+    console.log("✅ Email sent successfully via Resend!");
+    console.log("📨 Email ID:", data.id);
 
     return { 
       success: true, 
-      messageId: info.messageId,
-      response: info.response,
-      service: 'Gmail-Production'
+      messageId: data.id,
+      service: 'Resend'
     };
     
   } catch (err) {
-    console.error("❌ Production Gmail failed:");
+    console.error("❌ Resend service failed:");
     console.error("Error:", err.message);
-    console.error("Code:", err.code);
     
     let userError = "Failed to send verification email. Please try again.";
     
-    if (err.code === 'EAUTH') {
-      console.error("🔐 Gmail authentication failed");
-      userError = "Email authentication failed. Please contact support.";
-    } else if (err.code === 'ETIMEDOUT') {
-      console.error("⏰ Connection timeout");
-      userError = "Email service timeout. Please try again.";
-    } else if (err.code === 'ECONNECTION' || err.code === 'ENOTFOUND') {
-      console.error("🌐 Cannot connect to Gmail servers");
-      userError = "Cannot connect to email service. Please check your internet connection.";
+    if (err.message?.includes('API key')) {
+      userError = "Email service not configured properly. Please contact support.";
+    } else if (err.message?.includes('network') || err.message?.includes('timeout')) {
+      userError = "Network error. Please check your internet connection and try again.";
     }
     
     return { 
       success: false, 
       error: userError,
       technicalError: err.message,
-      code: err.code,
-      service: 'Gmail-Production'
+      service: 'Resend'
+    };
+  }
+};
+
+// Health check for Resend service
+export const checkResendHealth = async () => {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      return {
+        success: false,
+        error: "RESEND_API_KEY not configured",
+        configured: false
+      };
+    }
+
+    // Simple API key validation
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey.startsWith('re_')) {
+      return {
+        success: false,
+        error: "Invalid Resend API key format",
+        configured: false
+      };
+    }
+
+    return { 
+      success: true, 
+      message: 'Resend service is configured and ready',
+      configured: true,
+      apiKeyPrefix: apiKey.substring(0, 8) + '...'
+    };
+  } catch (error) {
+    return { 
+      success: false, 
+      error: `Resend configuration error: ${error.message}`,
+      configured: false
     };
   }
 };
