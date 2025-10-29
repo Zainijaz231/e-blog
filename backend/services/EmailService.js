@@ -1,5 +1,6 @@
 import { sendRenderOptimizedEmail, checkRenderEmailHealth } from './RenderOptimizedEmail.js';
 import { sendProductionEmail } from './ProductionGmail.js';
+import { sendRenderSafeEmail } from './RenderSafeEmail.js';
 import { verifyEmailEthereal } from './EtherealEmail.js';
 import dotenv from "dotenv";
 dotenv.config();
@@ -13,15 +14,25 @@ export const sendVerificationEmail = async (toEmail, token, name = "User") => {
   const isProduction = process.env.NODE_ENV === 'production';
   const isRender = process.env.RENDER || process.env.RENDER_SERVICE_ID;
   
+  console.log("🔧 Debug info:");
+  console.log("   NODE_ENV:", process.env.NODE_ENV);
+  console.log("   isProduction:", isProduction);
+  console.log("   isRender:", !!isRender);
+  console.log("   RENDER:", process.env.RENDER);
+  console.log("   RENDER_SERVICE_ID:", process.env.RENDER_SERVICE_ID);
+  
   if (hasGmailConfig) {
-    // In production, use simple reliable Gmail service
-    if (isProduction || isRender) {
-      console.log("🚀 Using Production Gmail service (Production Environment)");
+    // Use Render-safe service that handles timeouts gracefully
+    if (isRender) {
+      console.log("🛡️  Using Render-safe email service (with fallback)");
+      return await sendRenderSafeEmail(toEmail, token, name);
+    } else if (isProduction) {
+      console.log("🚀 Using Production Gmail service (NODE_ENV=production)");
       return await sendProductionEmail(toEmail, token, name);
     } else {
-      // In development, always use test service to avoid timeouts
+      // Local development
       console.log("🧪 Development mode - using Ethereal test service");
-      console.log("💡 Gmail will be used automatically in production (NODE_ENV=production)");
+      console.log("💡 Set NODE_ENV=production for Gmail, or deploy to Render for safe Gmail");
       return await verifyEmailEthereal(toEmail, token, name);
     }
   } else {

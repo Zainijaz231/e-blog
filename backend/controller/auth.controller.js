@@ -43,15 +43,11 @@ const register = async (req, res) => {
     
     if (!emailResult.success) {
       console.error("Email sending failed:", emailResult.error);
-      
-      // Different messages based on service used
-      if (emailResult.service === 'Ethereal') {
-        message = "Registration successful! Email verification is in test mode - check console for preview link.";
-      } else {
-        message = "Registration successful! There was an issue sending the verification email. Please try logging in to resend it.";
-      }
-    } else if (emailResult.testMode) {
-      message = "Registration successful! Email verification is in test mode - check console for preview link.";
+      message = "Registration successful! There was an issue sending the verification email. Please try logging in to resend it.";
+    } else if (emailResult.testMode || emailResult.service === 'Ethereal-Fallback') {
+      message = "Registration successful! Email verification is in test mode.";
+    } else if (emailResult.service === 'Gmail-RenderSafe') {
+      message = "Registration successful! Please check your email to verify your account.";
     }
 
     res.cookie('token', token, { httpOnly: true, secure:true, sameSite: 'none'  });
