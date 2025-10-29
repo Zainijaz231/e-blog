@@ -12,7 +12,7 @@ router.get('/details/:postId', GetPostDetails)
 router.get('/:username', GetUserPosts)
 router.post('/:postId/like', authMiddleware, ToggleLike);
 router.post('/:postId/comments', authMiddleware, addComment);
-router.post('/:postId/comments', authMiddleware, GetComments);
+router.get('/:postId/comments', authMiddleware, GetComments);
 
 router.post('/:postId/view', (req, res, next) => {
     // Optional auth middleware - doesn't fail if no token
