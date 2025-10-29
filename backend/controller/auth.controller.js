@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../model/user.model.js';
 import nodemailer from 'nodemailer';
-import { verifyEmail } from '../services/VerifiyEmail.js';
+import { sendVerificationEmail } from '../services/EmailService.js';
 
 const register = async (req, res) => {
   try {
@@ -37,7 +37,12 @@ const register = async (req, res) => {
 
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    await verifyEmail(email, token, name) ;
+    const emailResult = await sendVerificationEmail(email, token, name);
+    
+    if (!emailResult.success) {
+      console.error("Email sending failed:", emailResult.error);
+      // Continue with registration even if email fails
+    }
 
     res.cookie('token', token, { httpOnly: true, secure:true, sameSite: 'none'  });
 
@@ -130,7 +135,7 @@ const login = async (req, res) => {
     if (!user.verified) {
       const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-      await verifyEmail(user.email, token, user.name);
+      await sendVerificationEmail(user.email, token, user.name);
       return res.status(401).json({
         success: false,
         message: "Please verify your email before logging in.",
@@ -213,13 +218,13 @@ const requestReset = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.Email_USER,
-        pass: process.env.Email_PASS,
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
     await transporter.sendMail({
-      from: `"Support" <${process.env.Email_USER}>`,
+      from: `"Support" <${process.env.EMAIL_USER}>`,
       to: user.email,
       subject: "Password Reset",
       html: `
