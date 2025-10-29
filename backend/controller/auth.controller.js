@@ -37,7 +37,7 @@ const register = async (req, res) => {
 
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    await verifyEmail(email, token);
+    await verifyEmail(email, token, name) ;
 
     res.cookie('token', token, { httpOnly: true, secure:true, sameSite: 'none'  });
 
@@ -130,7 +130,7 @@ const login = async (req, res) => {
     if (!user.verified) {
       const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-      await verifyEmail(user.email, token);
+      await verifyEmail(user.email, token, user.name);
       return res.status(401).json({
         success: false,
         message: "Please verify your email before logging in.",
