@@ -39,7 +39,7 @@ const register = async (req, res) => {
 
     await verifyEmail(email, token);
 
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    res.cookie('token', token, { httpOnly: true, secure:true, sameSite: 'none'  });
 
 
     res.status(201).json({ message: "Registration successful! Please check your email to verify your account." });
@@ -85,8 +85,8 @@ const verifiedEmail = async (req, res) => {
 
     res.cookie("token", loginToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 3600000,
     });
 
@@ -141,8 +141,8 @@ const login = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // false for dev
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // ✅ use "lax" locally
+      secure: true, // false for dev
+      sameSite: "none",
       maxAge: 3600000,
     });
 
