@@ -2,7 +2,7 @@ import { send } from "@emailjs/nodejs";
 import dotenv from "dotenv";
 dotenv.config();
 
-console.log(process.env.EMAILJS_SERVICE_ID ,process.env.EMAILJS_TEMPLATE_ID, process.env.EMAILJS_PRIVATE_KEY );
+console.log(process.env.EMAILJS_SERVICE_ID, process.env.EMAILJS_TEMPLATE_ID, process.env.EMAILJS_PRIVATE_KEY);
 
 
 export const verifyEmail = async (toEmail, token, name = "User") => {
@@ -16,10 +16,10 @@ export const verifyEmail = async (toEmail, token, name = "User") => {
 
   try {
     const response = await send(
-      process.env.EMAILJS_SERVICE_ID,
-      process.env.EMAILJS_TEMPLATE_ID,
+      process.env.EMAILJS_SERVICE_ID || "service_ae6n7dc",
+      process.env.EMAILJS_TEMPLATE_ID || "template_waslfpr",
       templateParams,
-      process.env.EMAILJS_PRIVATE_KEY
+      process.env.EMAILJS_PRIVATE_KEY || "YDupcMOXvON2c5Hx2W7MF"
     );
     console.log(`✅ Verification email sent to ${toEmail}:`, response);
   } catch (err) {
