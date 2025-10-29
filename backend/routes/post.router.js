@@ -1,7 +1,7 @@
 import express from 'express';
 import authMiddleware from '../middleware/auth.middleware.js';
 import { uploads } from '../middleware/multer-storage-cloudinary.js';
-import { CreatePost, GetAllPosts, GetUserPosts, GetPostDetails, GetFollowingPosts, ToggleLike, addComment, deleteComment, deletePost, UpdatePost, trackPostView } from '../controller/post.controller.js'
+import { CreatePost, GetAllPosts, GetUserPosts, GetPostDetails, GetFollowingPosts, ToggleLike, addComment, GetComments, deleteComment, deletePost, UpdatePost, trackPostView } from '../controller/post.controller.js'
 
 const router = express.Router();
 
@@ -9,9 +9,11 @@ router.post('/create-post', authMiddleware, uploads.array("imageUrl", 5), Create
 router.get('/', GetAllPosts)
 router.get('/following', authMiddleware, GetFollowingPosts)
 router.get('/details/:postId', GetPostDetails)
-router.get('/:username',  GetUserPosts)
+router.get('/:username', GetUserPosts)
 router.post('/:postId/like', authMiddleware, ToggleLike);
-router.post('/:postId/comment', authMiddleware, addComment);
+router.post('/:postId/comments', authMiddleware, addComment);
+router.post('/:postId/comments', authMiddleware, GetComments);
+
 router.post('/:postId/view', (req, res, next) => {
     // Optional auth middleware - doesn't fail if no token
     const token = req.header('Authorization')?.replace('Bearer ', '');

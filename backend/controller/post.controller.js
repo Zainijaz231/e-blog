@@ -93,7 +93,7 @@ const GetFollowingPosts = async (req, res) => {
 
         // Get current user with following list
         const currentUser = await User.findById(userId).populate('following', '_id');
-        
+
         if (!currentUser) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -102,12 +102,12 @@ const GetFollowingPosts = async (req, res) => {
         const followingIds = currentUser.following.map(user => user._id);
 
         // Find posts from followed users
-        const posts = await Post.find({ 
+        const posts = await Post.find({
             author: { $in: followingIds },
-            isPublic: true 
+            isPublic: true
         })
-        .populate("author", "name username avatarUrl")
-        .sort({ createdAt: -1 });
+            .populate("author", "name username avatarUrl")
+            .sort({ createdAt: -1 });
 
         res.status(200).json({ posts });
     } catch (error) {
@@ -264,11 +264,11 @@ const trackPostView = async (req, res) => {
 
         // Check if user already viewed this post recently (within last hour)
         if (userId) {
-            const recentView = post.viewedBy.find(view => 
-                view.user?.toString() === userId.toString() && 
+            const recentView = post.viewedBy.find(view =>
+                view.user?.toString() === userId.toString() &&
                 new Date() - new Date(view.viewedAt) < 3600000 // 1 hour
             );
-            
+
             if (!recentView) {
                 // Add new view record
                 post.viewedBy.push({ user: userId });
@@ -281,9 +281,9 @@ const trackPostView = async (req, res) => {
             await post.save();
         }
 
-        res.status(200).json({ 
+        res.status(200).json({
             message: "View tracked successfully",
-            viewCount: post.viewCount 
+            viewCount: post.viewCount
         });
     } catch (error) {
         console.error("Error tracking post view:", error);
@@ -291,4 +291,25 @@ const trackPostView = async (req, res) => {
     }
 };
 
-export { CreatePost, GetAllPosts, GetUserPosts, GetPostDetails, GetFollowingPosts, ToggleLike, addComment, deleteComment, deletePost, UpdatePost, trackPostView }
+
+const GetComments = async (req, res) => {
+    try {
+        const { postId } = req.params;
+
+        // Fetch all comments for this post
+        const comments = await Comment.find({ postId })
+            .populate("author", "username avatarUrl")
+            .sort({ createdAt: -1 });
+
+        if (!comments.length) {
+            return res.status(404).json({ message: "No comments yet" });
+        }
+
+        res.status(200).json(comments);
+    } catch (error) {
+        console.error("Error fetching comments:", error);
+        res.status(500).json({ message: "Server error while fetching comments" });
+    }
+};
+
+export { CreatePost, GetAllPosts, GetComments, GetUserPosts, GetPostDetails, GetFollowingPosts, ToggleLike, addComment, deleteComment, deletePost, UpdatePost, trackPostView }
