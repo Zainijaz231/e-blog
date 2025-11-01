@@ -1,9 +1,5 @@
 import express from 'express';
-<<<<<<< HEAD
 import { register, login, logout, getUser,  resetPassword,  GetProfile, UpdateProfile, FollowToggle , GetFollowers, GetFollowing} from '../controller/auth.controller.js';
-=======
-import { register, login, logout, getUser, requestReset, resetPassword, GetProfile, UpdateProfile, FollowToggle, GetFollowers, GetFollowing } from '../controller/auth.controller.js';
->>>>>>> ad2d4831247302d6b6d4dafaf404f95398aac8d8
 import authMiddleware from '../middleware/auth.middleware.js';
 import { uploads } from '../middleware/multer-storage-cloudinary.js';
 
