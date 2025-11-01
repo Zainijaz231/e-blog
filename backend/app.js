@@ -41,6 +41,5 @@ app.use('/api/auth', authRouter)
 app.use('/api/post', postRouter)
 app.use('/api/upload', uploadRouter)
 app.use('/api/search', searchRouter)
-app.use('/api/health', healthRouter)
 
 export default app;
