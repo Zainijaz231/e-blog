@@ -1,15 +1,5 @@
 # ✍️ E-Blog Application: A Modern Full-Stack Blog Platform
 
-> The perfect stage for your content. Fast, responsive, and easy to manage.
-
-## 🌟 Project Status
-
-| Status | Badge |
-| :--- | :--- |
-| **Version** | ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/Zainijaz231/e-blog?style=flat-square&color=blue) |
-| **License** | ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square) |
-| **Deployed** | ![Vercel Deployment Status](https://img.shields.io/badge/Vercel-Deployed-0077B6?style=flat-square&logo=vercel) |
-
 ## 🌐 Live Demo
 
 Instantly see the application in action:
