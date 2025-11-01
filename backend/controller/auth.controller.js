@@ -328,4 +328,4 @@ const GetFollowing = async (req, res) => {
 };
 
 
-export { register, login, logout, getUser, requestReset, resetPassword, verifiedEmail, GetProfile, UpdateProfile, FollowToggle, GetFollowers, GetFollowing };
+export { register, login, logout, getUser, requestReset, resetPassword,  GetProfile, UpdateProfile, FollowToggle, GetFollowers, GetFollowing };
