@@ -22,10 +22,10 @@ This project is built as a highly modular full-stack application.
 
 | Component | Technology | Primary Language |
 | :--- | :--- | :--- |
-| **Frontend** | React / Next.js | JavaScript |
-| **Backend** | Node.js (Express/Nest) | JavaScript |
-| **Database** | MongoDB (or similar NoSQL DB) | N/A |
-| **Styling** | Modern CSS Framework (e.g., Tailwind or Styled Components) | N/A |
+| **Frontend** | React | JavaScript |
+| **Backend** | Node.js (Express) | JavaScript |
+| **Database** | MongoDB  
+| **Styling** | Modern CSS Framework (e.g., Tailwind or Styled Components) 
 
 ---
 
