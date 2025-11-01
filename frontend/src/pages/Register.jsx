@@ -17,6 +17,7 @@ const Register = () => {
         feedback: []
     });
 
+    // 🔐 Password Strength Checker
     const checkPasswordStrength = (password) => {
         const checks = {
             length: password.length >= 8,
@@ -51,19 +52,23 @@ const Register = () => {
         if (passwordStrength.score <= 4) return 'Good';
         return 'Strong';
     };
+
+    // 🧭 Handle Register Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await register(form);
+        const res = await register(form);
 
-        // Always redirect to check email page after registration
-        navigate('/register-success', { 
-            state: { 
-                email: form.email, 
-                from: 'register',
-                formData: form 
-            } 
-        });
-    }
+        // ✅ Only navigate if registration successful
+        if (res?.success || res?.message?.includes('success')) {
+            navigate('/register-success', { 
+                state: { 
+                    email: form.email,
+                    from: 'register',
+                    formData: form 
+                } 
+            });
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 flex items-center justify-center p-4">
@@ -152,8 +157,8 @@ const Register = () => {
                                     )}
                                 </button>
                             </div>
-                            
-                            {/* Password Strength Indicator */}
+
+                            {/* Password Strength */}
                             {form.password && (
                                 <div className="mt-2">
                                     <div className="flex items-center space-x-2 mb-2">
@@ -171,7 +176,7 @@ const Register = () => {
                                             {getStrengthText()}
                                         </span>
                                     </div>
-                                    
+
                                     {passwordStrength.feedback.length > 0 && (
                                         <div className="text-xs text-gray-600">
                                             <p className="mb-1">Password should include:</p>
