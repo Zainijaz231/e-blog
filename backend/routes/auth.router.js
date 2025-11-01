@@ -1,5 +1,9 @@
 import express from 'express';
+<<<<<<< HEAD
 import { register, login, logout, getUser,  resetPassword,  GetProfile, UpdateProfile, FollowToggle , GetFollowers, GetFollowing} from '../controller/auth.controller.js';
+=======
+import { register, login, logout, getUser, requestReset, resetPassword, GetProfile, UpdateProfile, FollowToggle, GetFollowers, GetFollowing } from '../controller/auth.controller.js';
+>>>>>>> ad2d4831247302d6b6d4dafaf404f95398aac8d8
 import authMiddleware from '../middleware/auth.middleware.js';
 import { uploads } from '../middleware/multer-storage-cloudinary.js';
 
@@ -13,7 +17,7 @@ router.post('/reset-password', resetPassword);
 router.put('/update-profile', authMiddleware, uploads.single("avatar"), UpdateProfile);
 router.get('/profile/:username', GetProfile);
 router.post('/profile/:username/follow', authMiddleware, FollowToggle)
-router.get('/profile/:username/followers', authMiddleware ,GetFollowers )
-router.get('/profile/:username/following', authMiddleware,GetFollowing )
+router.get('/profile/:username/followers', authMiddleware, GetFollowers)
+router.get('/profile/:username/following', authMiddleware, GetFollowing)
 
 export default router; 

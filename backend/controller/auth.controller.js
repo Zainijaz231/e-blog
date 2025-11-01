@@ -291,4 +291,8 @@ const GetFollowing = async (req, res) => {
 };
 
 
+<<<<<<< HEAD
 export { register, login, logout, getUser,  resetPassword, GetProfile, UpdateProfile, FollowToggle, GetFollowers, GetFollowing };
+=======
+export { register, login, logout, getUser, requestReset, resetPassword,  GetProfile, UpdateProfile, FollowToggle, GetFollowers, GetFollowing };
+>>>>>>> ad2d4831247302d6b6d4dafaf404f95398aac8d8
