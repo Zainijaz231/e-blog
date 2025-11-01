@@ -23,12 +23,14 @@ const Login = () => {
         e.preventDefault()
         const res = await login(form)
         
+
+        //this for future because i dont have domain so i cant send Emails
         if (res?.success) {
             setUser(res.user)
             navigate('/')
         } else if (res?.message?.includes('verify') || res?.message?.includes('verification')) {
             // Only redirect to check email if verification is needed
-            navigate('/check-email', { 
+            navigate('/', { 
                 state: { 
                     email: form.email, 
                     from: 'login',

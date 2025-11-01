@@ -56,7 +56,7 @@ const Register = () => {
         await register(form);
 
         // Always redirect to check email page after registration
-        navigate('/check-email', { 
+        navigate('/', { 
             state: { 
                 email: form.email, 
                 from: 'register',
