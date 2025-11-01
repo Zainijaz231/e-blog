@@ -4,8 +4,6 @@ import  useAuthStore from "../store/authSore";
 const ProtectedRoute = ({ children }) => {
     const { user, loading } = useAuthStore();
 
-    console.log('ProtectedRoute - Loading:', loading, 'User:', user);
-
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
