@@ -37,22 +37,9 @@ const register = async (req, res) => {
 
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    const emailResult = await sendVerificationEmail(email, token, name);
-    
-    let message = "Registration successful! Please check your email to verify your account.";
-    
-    if (!emailResult.success) {
-      console.error("Email sending failed:", emailResult.error);
-      message = "Registration successful! There was an issue sending the verification email. Please try logging in to resend it.";
-    } else if (emailResult.testMode || emailResult.service?.includes('Test')) {
-      message = "Registration successful! Email verification is in test mode - check server logs for verification link.";
-    } else if (emailResult.service === 'Resend') {
-      message = "Registration successful! Please check your email to verify your account.";
-    }
+    res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'none' });
 
-    res.cookie('token', token, { httpOnly: true, secure:true, sameSite: 'none'  });
-
-    res.status(201).json({ 
+    res.status(201).json({
       message: message,
       emailSent: emailResult.success,
       testMode: emailResult.testMode || false
@@ -64,66 +51,6 @@ const register = async (req, res) => {
   }
 }
 
-// Backend - verifiedEmail function (tumhara already sahi hai)
-const verifiedEmail = async (req, res) => {
-  const { token } = req.query;
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid verification link"
-      });
-    }
-
-    if (user.verified) {
-      // ✅ Already verified to bhi success return karo
-      return res.status(200).json({
-        success: true,
-        message: "Email already verified!"
-      });
-    }
-
-    user.verified = true;
-    await user.save();
-
-    const loginToken = jwt.sign(
-      { userId: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    res.cookie("token", loginToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 3600000,
-    });
-
-    // ✅ Success response
-    res.status(200).json({
-      success: true,
-      message: "Email verified successfully! Logged in ✅",
-      token: loginToken,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
-
-  } catch (error) {
-    console.error("Error verifying email:", error);
-    res.status(400).json({
-      success: false,
-      message: "Invalid or expired verification link"
-    });
-  }
-};
 
 const login = async (req, res) => {
   try {
@@ -139,16 +66,6 @@ const login = async (req, res) => {
 
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    if (!user.verified) {
-      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-      await sendVerificationEmail(user.email, token, user.name);
-      return res.status(401).json({
-        success: false,
-        message: "Please verify your email before logging in.",
-      });
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -300,7 +217,7 @@ const GetProfile = async (req, res) => {
   try {
     const { username } = req.params;
     const user = await User.findOne({ username }).select('-password');
-    
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
