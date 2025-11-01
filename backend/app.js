@@ -5,7 +5,6 @@ import authRouter from './routes/auth.router.js';
 import postRouter from './routes/post.router.js';
 import uploadRouter from './routes/upload.router.js';
 import searchRouter from './routes/search.router.js';
-import healthRouter from './routes/health.router.js';
 
 const app = express();
 app.use(express.json());

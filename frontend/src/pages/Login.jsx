@@ -22,7 +22,7 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         const res = await login(form)
-        
+
 
         //this for future because i dont have domain so i cant send Emails
         if (res?.success) {
@@ -30,12 +30,12 @@ const Login = () => {
             navigate('/')
         } else if (res?.message?.includes('verify') || res?.message?.includes('verification')) {
             // Only redirect to check email if verification is needed
-            navigate('/', { 
-                state: { 
-                    email: form.email, 
+            navigate('/', {
+                state: {
+                    email: form.email,
                     from: 'login',
-                    formData: form 
-                } 
+                    formData: form
+                }
             });
         }
         // For other errors (wrong password, etc.), just show error message
@@ -57,7 +57,7 @@ const Login = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Username
                             </label>
-                            <input 
+                            <input
                                 type='text'
                                 placeholder='Enter your username'
                                 value={form.username}
@@ -71,7 +71,7 @@ const Login = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Email
                             </label>
-                            <input 
+                            <input
                                 type="email"
                                 placeholder='Enter your email'
                                 value={form.email}
@@ -87,11 +87,10 @@ const Login = () => {
                                     Password
                                 </label>
                                 <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
-                                    Forgot Password?
                                 </Link>
                             </div>
                             <div className="relative">
-                                <input 
+                                <input
                                     type={showPassword ? "text" : "password"}
                                     placeholder='Enter your password'
                                     value={form.password}
@@ -124,8 +123,8 @@ const Login = () => {
                             </div>
                         )}
 
-                        <button 
-                            type='submit' 
+                        <button
+                            type='submit'
                             disabled={loading}
                             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center"
                         >

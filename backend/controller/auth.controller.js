@@ -2,7 +2,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../model/user.model.js';
 import nodemailer from 'nodemailer';
-import { sendVerificationEmail } from '../services/EmailService.js';
 
 const register = async (req, res) => {
   try {
@@ -41,8 +40,6 @@ const register = async (req, res) => {
 
     res.status(201).json({
       message: message,
-      emailSent: emailResult.success,
-      testMode: emailResult.testMode || false
     });
 
   } catch (error) {
@@ -128,63 +125,29 @@ const getUser = async (req, res) => {
   }
 }
 
-const requestReset = async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    // Create short-lived token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
-
-    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${token}`;
-
-    // Send email
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: `"Support" <${process.env.EMAIL_USER}>`,
-      to: user.email,
-      subject: "Password Reset",
-      html: `
-        <p>Click below to reset your password (valid for 15 minutes):</p>
-        <a href="${resetLink}">${resetLink}</a>
-      `,
-    });
-
-    res.json({ success: true, message: "Reset link sent to your email" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
 
 const resetPassword = async (req, res) => {
-  const { token, password } = req.body;
-
+  const { email, newPassword, password } = req.body;
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.findOne({ email })
+    if (!user) {
+      return res.status(401).json({ message: "user not found" })
+    }
 
-    await User.findByIdAndUpdate(decoded.id, { password: hashedPassword });
+    const CheckPassword = await bcrypt.compare(password, user.password)
+    if (!CheckPassword) {
+      return res.status(4010).json({ message: 'password incorrect' })
+    }
 
-    res.status(200).json({
-      success: true,
-      message: "Password reset successful! You can now login with your new password."
-    });
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({message: "password change success fully"})
   } catch (error) {
     console.error("Reset password error:", error);
     res.status(400).json({
       success: false,
-      message: "Invalid or expired reset token"
+      message: "something went worng"
     });
   }
 };
@@ -328,4 +291,4 @@ const GetFollowing = async (req, res) => {
 };
 
 
-export { register, login, logout, getUser, requestReset, resetPassword, verifiedEmail, GetProfile, UpdateProfile, FollowToggle, GetFollowers, GetFollowing };
+export { register, login, logout, getUser,  resetPassword, GetProfile, UpdateProfile, FollowToggle, GetFollowers, GetFollowing };
