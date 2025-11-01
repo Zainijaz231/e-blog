@@ -39,7 +39,7 @@ const register = async (req, res) => {
     res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'none' });
 
     res.status(201).json({
-      message: message,
+      message: "Register SucessFully",
     });
 
   } catch (error) {
