@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useAuthStore from "../store/authSore";
+import RegisterSuccess from "./RegisterSuccess"
 
 const Register = () => {
     const navigate = useNavigate();
