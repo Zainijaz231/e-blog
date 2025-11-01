@@ -18,17 +18,16 @@ import Search from './pages/Search';
 
 function App() {
   const { fetchUser, loading } = useAuthStore();
+useEffect(() => {
+  const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    // Only fetch user if there might be a token
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetchUser().catch(() => {
-        // If fetchUser fails, just continue - user is not authenticated
-        console.log('User not authenticated');
-      });
-    }
-  }, [fetchUser]);
+  // ✅ Skip fetchUser if user is on register-success page
+  if (token && window.location.pathname !== "/register-success") {
+    fetchUser().catch(() => {
+      console.log('User not authenticated');
+    });
+  }
+}, [fetchUser]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
