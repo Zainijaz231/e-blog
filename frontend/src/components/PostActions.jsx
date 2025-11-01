@@ -22,14 +22,6 @@ const PostActions = ({ post, showInDropdown = false }) => {
         (typeof post.author === 'string' && post.author === currentUser.id)
     );
 
-    // Debug logging
-    console.log('PostActions Debug:', {
-        currentUser: currentUser?._id,
-        postAuthor: post.author,
-        postAuthorId: post.author?._id,
-        isAuthor
-    });
-
     // Delete post mutation
     const deletePostMutation = useMutation({
         mutationFn: async () => {
@@ -58,7 +50,6 @@ const PostActions = ({ post, showInDropdown = false }) => {
     const handleDelete = async () => {
         setIsDeleting(true);
         try {
-            console.log('Attempting to delete post:', post._id);
             await deletePostMutation.mutateAsync();
             console.log('Post deleted successfully');
         } catch (error) {
@@ -74,8 +65,6 @@ const PostActions = ({ post, showInDropdown = false }) => {
         console.log('PostActions: User is not author, hiding actions');
         return null;
     }
-
-    console.log('PostActions: User is author, showing actions');
 
     if (showInDropdown) {
         return (
