@@ -6,7 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import useAuthStore from './store/authSore';
 import { useEffect } from 'react';
 import VerifyEmail from './pages/VerifyEmail';
-import CheckEmail from './pages/CheckEmail';
+import RegisterSuccess from './pages/RegisterSuccess';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
@@ -42,9 +42,7 @@ function App() {
         <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/check-email" element={<CheckEmail />} />
-        <Route path="/verify-email/:token" element={<VerifyEmail />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/RegisterSuccess" element={<RegisterSuccess />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
